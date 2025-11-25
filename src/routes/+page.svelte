@@ -27,3 +27,7 @@ let { data }: PageProps = $props();
 <CardGrid cards={data.stats} />
 <h2>日別投稿数</h2>
 <BarChart data={data.postCountsDay} />
+<small>
+  <a href="https://github.com/SIT-DigiCre/mmdash"
+   target="_blank" rel="noopener noreferrer">GitHub</a>
+</small>
