@@ -21,8 +21,7 @@ let { data }: PageProps = $props();
   <meta name="twitter:description" content="https://mm.digicre.net のダッシュボード" />
   <meta name="twitter:image" content="https://mmdash.digicre.workers.dev/opengraph-image.png" />
 </svelte:head>
-<h1>mmdash</h1>
-<p>{data.currentDate} 更新</p>
+
 <h2>統計データ</h2>
 <CardGrid cards={data.stats} />
 <h2>日別投稿数</h2>
