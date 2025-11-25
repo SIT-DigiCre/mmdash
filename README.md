@@ -1,14 +1,12 @@
 # mmdash
 
-https://mmdash.newt239.com のダッシュボード
-
-## Developing
+## Development
 
 ```sh
 pnpm run dev
 ```
 
-## Building
+## Build
 
 To create a production version of your app:
 
