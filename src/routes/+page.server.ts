@@ -29,3 +29,5 @@ export const load: PageServerLoad = async () => {
 	];
 	return { team, stats, postCountsDay, currentDate };
 };
+
+export const prerender = true;
