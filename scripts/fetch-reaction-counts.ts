@@ -24,7 +24,7 @@ if (missingEnv.length) {
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-const OUTPUT_PATH = path.resolve(__dirname, '../src/lib/reaction-counts.json');
+const OUTPUT_PATH = path.resolve(__dirname, '../src/lib/data/reaction-counts.json');
 const BASE_URL = process.env.MM_BASE_URL ?? 'https://mm.digicre.net';
 const TEAM_NAME = process.env.MM_TEAM_NAME ?? 'digicre';
 const MAX_CHANNELS = Number(process.env.MM_MAX_CHANNELS ?? 500);

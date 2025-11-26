@@ -17,7 +17,7 @@ if (missingEnv.length) {
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-const OUTPUT_PATH = path.resolve(__dirname, '../src/lib/analytics.json');
+const OUTPUT_PATH = path.resolve(__dirname, '../src/lib/data/analytics.json');
 const BASE_URL = process.env.MM_BASE_URL ?? 'https://mm.digicre.net';
 const TEAM_NAME = process.env.MM_TEAM_NAME ?? 'digicre';
 
@@ -93,4 +93,3 @@ async function main() {
 }
 
 main();
-

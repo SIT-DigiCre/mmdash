@@ -25,6 +25,8 @@ jobs:
           version: 9
       - name: Install dependencies
         run: pnpm install
+      - name: Fetch data
+        run: pnpm run fetch:all
       - name: Build
         run: pnpm run build
       - name: Deploy with Wrangler
@@ -34,3 +36,11 @@ jobs:
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           MM_USERNAME: ${{ secrets.MM_USERNAME }}
           MM_PASSWORD: ${{ secrets.MM_PASSWORD }}
+      - name: Set date variable
+        run: echo "DATE=$(date +'%Y-%m-%d')" >> $GITHUB_ENV
+      - name: Upload data artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: mmdash-data-${{ env.DATE }}
+          path: src/lib/data
+          retention-days: 0
