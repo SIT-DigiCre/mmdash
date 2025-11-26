@@ -7,19 +7,8 @@ let { data }: PageProps = $props();
 </script>
 
 <svelte:head>
-  <title>mmdash</title>
-  <meta name="description" content="https://mm.digicre.net のダッシュボード" />
-  <meta property="og:title" content="mmdash" />
-  <meta property="og:description" content="https://mm.digicre.net のダッシュボード" />
-  <meta property="og:image" content="https://mmdash.digicre.workers.dev/opengraph-image.png" />
-  <meta property="og:url" content="https://mmdash.digicre.workers.dev" />
-  <meta property="og:type" content="website" />
-  <meta property="og:locale" content="ja_JP" />
-  <meta property="og:site_name" content="mmdash" />
-  <meta name="twitter:card" content="summary_large_image" />
-  <meta name="twitter:title" content="mmdash" />
-  <meta name="twitter:description" content="https://mm.digicre.net のダッシュボード" />
-  <meta name="twitter:image" content="https://mmdash.digicre.workers.dev/opengraph-image.png" />
+  <title>統計データ | mmdash</title>
+  <meta property="og:url" content="https://mmdash.digicre.workers.dev/" />
 </svelte:head>
 
 <h2>統計データ</h2>

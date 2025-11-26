@@ -23,4 +23,6 @@ vite.config.js.timestamp-*
 vite.config.ts.timestamp-*
 
 # Generated data
+.cloudflare
 /src/lib/reaction-counts.json
+/src/lib/analytics.json
