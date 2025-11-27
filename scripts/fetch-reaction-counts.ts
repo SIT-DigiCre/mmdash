@@ -25,9 +25,13 @@ if (missingEnv.length) {
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const OUTPUT_PATH = path.resolve(__dirname, '../src/lib/data/reaction-counts.json');
+const WEEKLY_OUTPUT_PATH = path.resolve(__dirname, '../src/lib/data/weekly-reaction-counts.json');
 const BASE_URL = process.env.MM_BASE_URL ?? 'https://mm.digicre.net';
 const TEAM_NAME = process.env.MM_TEAM_NAME ?? 'digicre';
 const MAX_CHANNELS = Number(process.env.MM_MAX_CHANNELS ?? 500);
+
+const ONE_WEEK_MS = 7 * 24 * 60 * 60 * 1000;
+const WEEK_WINDOW_START = Date.now() - ONE_WEEK_MS;
 
 const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
@@ -84,6 +88,7 @@ async function fetchReactionCounts() {
 	const profileMap = new Map(profiles.map((profile) => [profile.id, profile.nickname ?? '']));
 
 	const reactionCounts: Record<string, number> = {};
+	const weeklyReactionCounts: Record<string, number> = {};
 	let processedChannels = 0;
 	for (const channel of channelList) {
 		const posts: { id: string; reactions: Reaction[] }[] = [];
@@ -91,7 +96,9 @@ async function fetchReactionCounts() {
 		while (true) {
 			const response = await client.getPosts(channel.id, postsPage, 200);
 			const newPosts = Object.values(response.posts ?? {});
-			console.log(`Channel '${channel.name}' posts page ${postsPage} (${newPosts.length})`);
+			console.log(
+				`Channel '${channel.name.slice(0, 8)}...' posts page ${postsPage} (${newPosts.length})`
+			);
 			posts.push(
 				...newPosts.map((post) => ({
 					id: post.id,
@@ -105,11 +112,17 @@ async function fetchReactionCounts() {
 			postsPage++;
 			await sleep(200);
 		}
-		console.log(`Channel '${channel.name}' total posts ${posts.length}`);
+		console.log(`Channel '${channel.name.slice(0, 8)}...' total posts ${posts.length}`);
 
 		for (const post of posts) {
 			for (const reaction of post.reactions) {
-				reactionCounts[reaction.user_id] = (reactionCounts[reaction.user_id] ?? 0) + 1;
+				const userId = reaction.user_id;
+				reactionCounts[userId] = (reactionCounts[userId] ?? 0) + 1;
+
+				const createdAt = reaction.create_at ?? 0;
+				if (createdAt >= WEEK_WINDOW_START) {
+					weeklyReactionCounts[userId] = (weeklyReactionCounts[userId] ?? 0) + 1;
+				}
 			}
 		}
 
@@ -128,15 +141,29 @@ async function fetchReactionCounts() {
 		}))
 		.sort((a, b) => b.count - a.count);
 
-	return { team, reactionCountsList };
+	const weeklyReactionCountsList = Object.entries(weeklyReactionCounts)
+		.map(([userId, count]) => ({
+			userId,
+			nickname: profileMap.get(userId) ?? '',
+			count
+		}))
+		.sort((a, b) => b.count - a.count);
+
+	return { reactionCountsList, weeklyReactionCountsList };
 }
 
 async function main() {
 	try {
-		const data = await fetchReactionCounts();
+		const { reactionCountsList, weeklyReactionCountsList } = await fetchReactionCounts();
 		await mkdir(path.dirname(OUTPUT_PATH), { recursive: true });
-		await writeFile(OUTPUT_PATH, JSON.stringify(data, null, 2), 'utf8');
-		console.log(`Saved ${data.reactionCountsList.length} entries to ${OUTPUT_PATH}`);
+		const totalData = { reactionCountsList };
+		const weeklyData = { reactionCountsList: weeklyReactionCountsList };
+
+		await writeFile(OUTPUT_PATH, JSON.stringify(totalData, null, 2), 'utf8');
+		await writeFile(WEEKLY_OUTPUT_PATH, JSON.stringify(weeklyData, null, 2), 'utf8');
+
+		console.log(`Saved ${reactionCountsList.length} total entries to ${OUTPUT_PATH}`);
+		console.log(`Saved ${weeklyReactionCountsList.length} weekly entries to ${WEEKLY_OUTPUT_PATH}`);
 	} catch (error) {
 		console.error('Failed to fetch reaction counts:', error);
 		process.exit(1);
