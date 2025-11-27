@@ -60,11 +60,11 @@
   }
 
   .reaction-table th:first-child {
-    border-top-left-radius: 0.5rem;
+    border-top-left-radius: 0.3rem;
   }
 
   .reaction-table th:last-child {
-    border-top-right-radius: 0.5rem;
+    border-top-right-radius: 0.3rem;
   }
 
   .rank-header {

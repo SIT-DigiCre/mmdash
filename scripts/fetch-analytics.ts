@@ -35,7 +35,6 @@ type AnalyticsData = {
 		name: string;
 		value: number;
 	}>;
-	currentDate: string;
 };
 
 async function fetchAnalytics(): Promise<AnalyticsData> {
@@ -45,8 +44,6 @@ async function fetchAnalytics(): Promise<AnalyticsData> {
 
 	const team = await client.getTeamByName(TEAM_NAME);
 	console.log(`Team: ${team.display_name ?? team.name}`);
-
-	const currentDate = new Date().toISOString().split('T')[0];
 
 	const analytics = await client.getAnalytics();
 	const channelCount = analytics
@@ -73,8 +70,7 @@ async function fetchAnalytics(): Promise<AnalyticsData> {
 			display_name: team.display_name
 		},
 		stats,
-		postCountsDay,
-		currentDate
+		postCountsDay
 	};
 }
 

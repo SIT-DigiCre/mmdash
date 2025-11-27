@@ -13,8 +13,8 @@ let { data }: PageProps = $props();
     <ReactionTable data={data.reactionCountsData.reactionCountsList} />
   </div>
   <div class="reaction-table-container-item">
-  <h3>先週</h3>
-  <ReactionTable data={data.weeklyReactionCountsData.reactionCountsList} />
+    <h3>先週</h3>
+    <ReactionTable data={data.weeklyReactionCountsData.reactionCountsList} />
   </div>
 </div>
 
