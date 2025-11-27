@@ -1,6 +1,7 @@
 <script lang="ts">
 	import favicon from '$lib/assets/favicon.svg';
 	import type { LayoutProps } from './$types';
+	import Header from '../components/Header.svelte';
 
 	let { children }: LayoutProps = $props();
 </script>
@@ -21,11 +22,20 @@
   <meta name="twitter:image" content="https://mmdash.digicre.workers.dev/opengraph-image.png" />
 </svelte:head>
 
-<h1>mmdash</h1>
-<p>{new Date().toISOString().split('T')[0]} 更新</p>
-<nav>
-	<a href="/">ホーム</a>
-	<a href="/reaction">リアクション数</a>
-</nav>
+<Header />
 
+<main>
 {@render children()}
+</main>
+
+<style>
+  :global(body) {
+    margin: 0;
+  }
+  
+	main {
+		max-width: 1000px;
+		margin: 0 auto;
+		padding: 2rem 1rem;
+	}
+</style>
