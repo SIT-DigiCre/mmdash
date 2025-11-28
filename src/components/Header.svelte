@@ -20,10 +20,9 @@
 		max-width: 1000px;
 		margin: 0 auto;
 		padding: 1rem;
-		position: sticky;
-		top: 0;
 		background-color: #fff;
 		z-index: 100;
+		view-transition-name: header;
 	}
 
 	.header-top {

@@ -1,9 +1,23 @@
 <script lang="ts">
-	import favicon from '$lib/assets/favicon.svg';
+  import { onNavigate } from '$app/navigation';
 	import type { LayoutProps } from './$types';
+	import favicon from '$lib/assets/favicon.svg';
 	import Header from '../components/Header.svelte';
+	import BackToTop from '../components/BackToTop.svelte';
+	import Footer from '../components/Footer.svelte';
 
 	let { children }: LayoutProps = $props();
+
+   onNavigate((navigation) => {
+    if (!document.startViewTransition) return;
+
+    return new Promise((resolve) => {
+      document.startViewTransition(async () => {
+        resolve();
+        await navigation.complete;
+      });
+	 });
+	});
 </script>
 
 <svelte:head>
@@ -23,19 +37,86 @@
 </svelte:head>
 
 <Header />
-
 <main>
 {@render children()}
 </main>
+<Footer />
+<BackToTop />
 
 <style>
+  @font-face {
+    font-family: "LINE Seed JP";
+    src: url("/fonts/LINESeedJP_OTF_Rg.woff2") format("woff2");
+    font-weight: 400;
+    font-style: normal;
+  }
+
+  @font-face {
+    font-family: "LINE Seed JP";
+    src: url("/fonts/LINESeedJP_OTF_Bd.woff2") format("woff2");
+    font-weight: 800;
+    font-style: normal;
+  }
+
+  :global(html) {
+    scroll-behavior: smooth;
+  }
+
   :global(body) {
+    font-family: "LINE Seed JP", "Noto Sans JP", sans-serif;
     margin: 0;
+    box-sizing: border-box;
+  }
+
+  :global(h2) {
+    font-size: 1.75rem;
+    line-height: 1;
+    font-weight: 800;
+    margin: 1.5rem 0 1rem 0;
+    padding: 0;
+    color: #000;
+    letter-spacing: -0.02em;
   }
   
 	main {
 		max-width: 1000px;
-		margin: 0 auto;
-		padding: 2rem 1rem;
+		margin: 0 auto 3rem;
+		padding: 0 1rem;
 	}
+
+  @keyframes fade-in {
+    from {
+      opacity: 0;
+    }
+  }
+
+  @keyframes fade-out {
+    to {
+      opacity: 0;
+    }
+  }
+
+  @keyframes slide-from-right {
+    from {
+      transform: translateX(30px);
+    }
+  }
+
+  @keyframes slide-to-left {
+    to {
+      transform: translateX(-30px);
+    }
+  }
+
+  :root::view-transition-old(root) {
+    animation:
+      90ms cubic-bezier(0.4, 0, 1, 1) both fade-out,
+      300ms cubic-bezier(0.4, 0, 0.2, 1) both slide-to-left;
+  }
+
+  :root::view-transition-new(root) {
+    animation:
+      210ms cubic-bezier(0, 0, 0.2, 1) 90ms both fade-in,
+      300ms cubic-bezier(0.4, 0, 0.2, 1) both slide-from-right;
+  }
 </style>

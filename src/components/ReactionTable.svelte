@@ -32,7 +32,6 @@
 
 <style>
   .table-container {
-    overflow-x: auto;
     border: 1px solid #000;
     border-radius: 0.5rem;
     background-color: #fff;
@@ -41,7 +40,8 @@
   .reaction-table {
     width: 100%;
     border-collapse: collapse;
-    font-size: 0.9375rem;
+    font-size: 1rem;
+    font-feature-settings: initial;
   }
 
   .reaction-table thead {

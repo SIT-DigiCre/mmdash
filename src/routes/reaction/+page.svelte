@@ -5,7 +5,7 @@ import ReactionTable from "../../components/ReactionTable.svelte";
 let { data }: PageProps = $props();
 </script>
 
-<h2 class="page-title">リアクション数ランキング</h2>
+<h2>リアクション数ランキング</h2>
 <p>公開チャンネルにおける投稿のみを対象としています。</p>
 <div class="reaction-table-container">
   <div class="reaction-table-container-item">
@@ -19,14 +19,6 @@ let { data }: PageProps = $props();
 </div>
 
 <style>
-  .page-title {
-    font-size: 1.75rem;
-    font-weight: 600;
-    margin: 0 0 1.5rem 0;
-    color: #000;
-    letter-spacing: -0.02em;
-  }
-
   .reaction-table-container {
     display: flex;
     flex-direction: row;
@@ -37,12 +29,16 @@ let { data }: PageProps = $props();
     flex: 1;
   }
 
-  @media (max-width: 640px) {
-    .page-title {
-      font-size: 1.5rem;
-      margin-bottom: 1rem;
-    }
+  h3 {
+    background-color: #fff;
+    z-index: 90;
+    margin: 0 auto;
+    padding: 1rem 0;
+    line-height: 1rem;
+    text-align: center;
+  }
 
+  @media (max-width: 640px) {
     .reaction-table-container {
       flex-direction: column;
     }
