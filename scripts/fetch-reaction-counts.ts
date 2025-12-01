@@ -15,13 +15,6 @@ type Channel = Pick<MMChannel, 'id' | 'name' | 'type'>;
 type Profile = Pick<UserProfile, 'id' | 'nickname'>;
 type Reaction = NonNullable<NonNullable<MMPost['metadata']>['reactions']>[number];
 
-const REQUIRED_ENV_VARS = ['MM_USERNAME', 'MM_PASSWORD'] as const;
-const missingEnv = REQUIRED_ENV_VARS.filter((name) => !process.env[name]);
-if (missingEnv.length) {
-	console.error(`Missing required environment variables: ${missingEnv.join(', ')}`);
-	process.exit(1);
-}
-
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const OUTPUT_PATH = path.resolve(__dirname, '../src/lib/data/reaction-counts.json');
