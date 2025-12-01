@@ -5,6 +5,11 @@
 	let { form, data }: { form: ActionData; data: PageData } = $props();
 </script>
 
+<svelte:head>
+  <title>ログイン | mmdash</title>
+  <meta property="og:url" content="https://mmdash.digicre.workers.dev/login" />
+</svelte:head>
+
 <h2>ログイン</h2>
 <p>部員のみが閲覧可能なページを表示するためには、Mattermostで共有されているパスワードを入力してください。</p>
 <form method="POST" use:enhance>

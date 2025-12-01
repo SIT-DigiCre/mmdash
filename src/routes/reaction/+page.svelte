@@ -5,6 +5,11 @@ import ReactionTable from "../../components/ReactionTable.svelte";
 let { data }: PageProps = $props();
 </script>
 
+<svelte:head>
+  <title>リアクション数ランキング | mmdash</title>
+  <meta property="og:url" content="https://mmdash.digicre.workers.dev/reaction" />
+</svelte:head>
+
 <h2>リアクション数ランキング</h2>
 <p>公開チャンネルにおける投稿のみを対象としています。</p>
 <div class="reaction-table-container">

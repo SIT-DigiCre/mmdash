@@ -1,13 +1,15 @@
 <script lang="ts">
 	import { page } from '$app/state';
 
-	const updateDate = new Date().toISOString().split('T')[0];
+	const BUILD_TIME = import.meta.env.VITE_BUILD_TIME;
 </script>
 
 <header>
 	<div class="header-top">
 		<h1>mmdash</h1>
-		<p class="update-date">{updateDate} 更新</p>
+		{#if BUILD_TIME}
+			<p class="update-date">{new Date(BUILD_TIME).toLocaleString('ja-JP', { timeZone: 'Asia/Tokyo' }).split(' ')[0]} 更新</p>
+		{/if}
 	</div>
 	<nav>
 		<a href="/" aria-current={page.url.pathname === '/' ? 'page' : undefined}>ホーム</a>
