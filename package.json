@@ -13,7 +13,8 @@
 		"format": "prettier --write .",
 		"lint": "prettier --check . && eslint .",
 		"fetch:reactions": "tsx scripts/fetch-reaction-counts.ts",
-		"fetch:analytics": "tsx scripts/fetch-analytics.ts"
+		"fetch:analytics": "tsx scripts/fetch-analytics.ts",
+		"fetch:all": "pnpm run fetch:reactions && pnpm run fetch:analytics"
 	},
 	"devDependencies": {
 		"@eslint/compat": "2.0.0",
