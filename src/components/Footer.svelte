@@ -9,7 +9,7 @@
     max-width: 1000px;
     margin: 0 auto 1rem;
     padding: 1rem;
-    text-align: end;
+    line-height: 1.2;
   }
 
   small {

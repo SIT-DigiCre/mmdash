@@ -26,6 +26,11 @@
           <td class="count-cell google-sans-flex">{item.count.toLocaleString()}</td>
         </tr>
       {/each}
+      <tr>
+        <td class="rank-cell">合計</td>
+        <td class="name-cell"></td>
+        <td class="count-cell google-sans-flex">{data.reduce((acc, item) => acc + item.count, 0).toLocaleString()}</td>
+      </tr>
     </tbody>
   </table>
 </div>
@@ -87,7 +92,16 @@
   }
 
   .reaction-table tbody tr:last-child {
+    border-top: 2px double #000;
     border-bottom: none;
+  }
+
+  .reaction-table tbody tr:last-child td:first-child {
+    border-end-start-radius: 0.5rem;
+  }
+
+  .reaction-table tbody tr:last-child td:last-child {
+    border-end-end-radius: 0.5rem;
   }
 
   .reaction-table tbody tr:hover {
