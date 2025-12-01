@@ -1,9 +1,6 @@
 {
 	"name": "mmdash",
 	"compatibility_date": "2025-11-25",
-	"assets": {
-		"directory": "./.cloudflare/public/fonts"
-	},
 	"main": "./.cloudflare/worker.js",
 	"site": {
 		"bucket": "./.cloudflare/public"
