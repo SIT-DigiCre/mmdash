@@ -63,7 +63,15 @@
   }
 
   :global(body) {
-    font-family: "LINE Seed JP", "Noto Sans JP", sans-serif;
+    font-family: "LINE Seed JP", sans-serif;
+    font-optical-sizing: auto;
+    font-weight: 400;
+    font-style: normal;
+    font-variation-settings:
+      "slnt" 0,
+      "wdth" 100,
+      "GRAD" 0,
+      "ROND" 0;
     margin: 0;
     box-sizing: border-box;
   }
@@ -76,6 +84,19 @@
     padding: 0;
     color: #000;
     letter-spacing: -0.02em;
+  }
+
+  :global(.google-sans-flex) {
+    font-family: "Google Sans Flex", sans-serif;
+    font-optical-sizing: auto;
+    font-weight: 700;
+    font-style: normal;
+    font-variation-settings:
+      "slnt" 0,
+      "wdth" 100,
+      "GRAD" 0,
+      "ROND" 0;
+    font-variant-numeric: tabular-nums;
   }
   
 	main {

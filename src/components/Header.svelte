@@ -8,7 +8,11 @@
 	<div class="header-top">
 		<h1>mmdash</h1>
 		{#if BUILD_TIME}
-			<p class="update-date">{new Date(BUILD_TIME).toLocaleString('ja-JP', { timeZone: 'Asia/Tokyo' }).split(' ')[0]} 更新</p>
+			<p class="update-date">
+				<time datetime={BUILD_TIME}>
+					{new Date(BUILD_TIME).toLocaleDateString('ja-JP', { timeZone: 'Asia/Tokyo', year: 'numeric', month: 'long', day: "numeric" })}
+				</time> 更新
+			</p>
 		{/if}
 	</div>
 	<nav>

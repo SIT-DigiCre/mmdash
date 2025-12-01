@@ -23,7 +23,7 @@
         <tr>
           <td class="rank-cell">{index + 1}</td>
           <td class="name-cell">{item.nickname}</td>
-          <td class="count-cell">{item.count.toLocaleString()}</td>
+          <td class="count-cell google-sans-flex">{item.count.toLocaleString()}</td>
         </tr>
       {/each}
     </tbody>
@@ -111,8 +111,6 @@
 
   .count-cell {
     text-align: right;
-    font-weight: 600;
-    font-variant-numeric: tabular-nums;
     font-size: 1.25rem;
   }
 

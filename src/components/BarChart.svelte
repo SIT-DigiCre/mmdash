@@ -18,9 +18,9 @@
 <div class="bar-chart">
   {#each scaledData as item}
     <div class="bar-chart-item">
-      <div class="bar-chart-item-name">{item.name}</div>
+      <time class="bar-chart-item-name google-sans-flex" datetime={item.name}>{new Date(item.name).toLocaleDateString('ja-JP', { month: "2-digit", day: "2-digit" })}</time>
       <div class="bar-chart-item-bar" style="width: {item.width}%;"></div>
-      <div class="bar-chart-item-value">{item.value}</div>
+      <div class="bar-chart-item-value google-sans-flex">{item.value.toLocaleString()}</div>
     </div>
   {/each}
 </div>
@@ -44,9 +44,8 @@
   .bar-chart-item-name {
     display: flex;
     justify-content: flex-end;
-    width: 100px;
+    width: 50px;
     font-size: 0.75rem;
-    font-weight: bold;
   }
 
   .bar-chart-item-bar {

@@ -9,7 +9,7 @@
 
 <dl class="card">
 	<dt>{name}</dt>
-	<dd>{value.toLocaleString()}</dd>
+	<dd class="google-sans-flex">{value.toLocaleString()}</dd>
 </dl>
 
 <style>
@@ -25,7 +25,6 @@
   }
   .card dd {
     font-size: 2rem;
-    font-weight: bold;
     margin: 0;
   }
 </style>
