@@ -39,7 +39,7 @@ async function fetchReactionCounts() {
 	const channels: Channel[] = [];
 	let channelsPage = 0;
 	while (true) {
-		const newChannels = (await client.getAllChannels(
+		const newChannels = await client.getAllChannels(
 			channelsPage,
 			200,
 			undefined,
@@ -49,7 +49,7 @@ async function fetchReactionCounts() {
 			false,
 			false,
 			false
-		)) as Channel[];
+		);
 		console.log(`Fetched channels page ${channelsPage} (${newChannels.length})`);
 		channels.push(...newChannels);
 		if (newChannels.length < 200) {
@@ -69,7 +69,7 @@ async function fetchReactionCounts() {
 	const profiles: Profile[] = [];
 	let profilesPage = 0;
 	while (true) {
-		const newProfiles = (await client.getProfiles(profilesPage, 200)) as Profile[];
+		const newProfiles = await client.getProfiles(profilesPage, 200);
 		console.log(`Fetched profiles page ${profilesPage} (${newProfiles.length})`);
 		profiles.push(...newProfiles);
 		if (newProfiles.length < 200) {
@@ -123,7 +123,6 @@ async function fetchReactionCounts() {
 		if (processedChannels >= MAX_CHANNELS) {
 			break;
 		}
-		await sleep(200);
 	}
 
 	const reactionCountsList = Object.entries(reactionCounts)
