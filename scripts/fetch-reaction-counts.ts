@@ -23,8 +23,25 @@ const BASE_URL = process.env.MM_BASE_URL ?? 'https://mm.digicre.net';
 const TEAM_NAME = process.env.MM_TEAM_NAME ?? 'digicre';
 const MAX_CHANNELS = Number(process.env.MM_MAX_CHANNELS ?? 500);
 
-const ONE_WEEK_MS = 7 * 24 * 60 * 60 * 1000;
-const WEEK_WINDOW_START = Date.now() - ONE_WEEK_MS;
+/**
+ * 直近の月曜0時から日曜24時までの期間を日本時間で取得
+ */
+function getWeeklyWindowJST(): { start: number; end: number } {
+	const JST_OFFSET_MS = 9 * 60 * 60 * 1000; // UTCとの時差9時間
+	const now = Date.now();
+	const nowJST = now + JST_OFFSET_MS;
+	const dayOfWeek = new Date(nowJST).getUTCDay();
+	const daysToMonday = dayOfWeek === 0 ? 1 : dayOfWeek === 1 ? 0 : dayOfWeek - 1;
+	const mondayJST = new Date(nowJST);
+	mondayJST.setUTCDate(mondayJST.getUTCDate() - daysToMonday);
+	mondayJST.setUTCHours(0, 0, 0, 0);
+	const sundayJST = new Date(mondayJST);
+	sundayJST.setUTCDate(mondayJST.getUTCDate() + 6);
+	sundayJST.setUTCHours(23, 59, 59, 999);
+	const start = mondayJST.getTime() - JST_OFFSET_MS;
+	const end = sundayJST.getTime() - JST_OFFSET_MS;
+	return { start, end };
+}
 
 const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
@@ -80,6 +97,7 @@ async function fetchReactionCounts() {
 
 	const profileMap = new Map(profiles.map((profile) => [profile.id, profile.nickname ?? '']));
 
+	const { start, end } = getWeeklyWindowJST();
 	const reactionCounts: Record<string, number> = {};
 	const weeklyReactionCounts: Record<string, number> = {};
 	let processedChannels = 0;
@@ -113,7 +131,7 @@ async function fetchReactionCounts() {
 				reactionCounts[userId] = (reactionCounts[userId] ?? 0) + 1;
 
 				const createdAt = reaction.create_at ?? 0;
-				if (createdAt >= WEEK_WINDOW_START) {
+				if (createdAt >= start && createdAt <= end) {
 					weeklyReactionCounts[userId] = (weeklyReactionCounts[userId] ?? 0) + 1;
 				}
 			}
