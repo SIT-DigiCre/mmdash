@@ -24,7 +24,7 @@ const TEAM_NAME = process.env.MM_TEAM_NAME ?? 'digicre';
 const MAX_CHANNELS = Number(process.env.MM_MAX_CHANNELS ?? 500);
 
 /**
- * 直近の月曜0時から日曜24時までの期間を日本時間で取得
+ * 前週の月曜0時から日曜24時までの期間を日本時間で取得
  */
 function getWeeklyWindowJST(): { start: number; end: number } {
 	const JST_OFFSET_MS = 9 * 60 * 60 * 1000; // UTCとの時差9時間
@@ -32,9 +32,12 @@ function getWeeklyWindowJST(): { start: number; end: number } {
 	const nowJST = now + JST_OFFSET_MS;
 	const dayOfWeek = new Date(nowJST).getUTCDay();
 	const daysToMonday = dayOfWeek === 0 ? 1 : dayOfWeek === 1 ? 0 : dayOfWeek - 1;
-	const mondayJST = new Date(nowJST);
-	mondayJST.setUTCDate(mondayJST.getUTCDate() - daysToMonday);
-	mondayJST.setUTCHours(0, 0, 0, 0);
+	const currentWeekMondayJST = new Date(nowJST);
+	currentWeekMondayJST.setUTCDate(currentWeekMondayJST.getUTCDate() - daysToMonday);
+	currentWeekMondayJST.setUTCHours(0, 0, 0, 0);
+	// 前週の月曜日を取得（現在の週の月曜日から7日引く）
+	const mondayJST = new Date(currentWeekMondayJST);
+	mondayJST.setUTCDate(mondayJST.getUTCDate() - 7);
 	const sundayJST = new Date(mondayJST);
 	sundayJST.setUTCDate(mondayJST.getUTCDate() + 6);
 	sundayJST.setUTCHours(23, 59, 59, 999);
