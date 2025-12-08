@@ -27,6 +27,10 @@ jobs:
         run: pnpm install
       - name: Fetch data
         run: pnpm run fetch:all
+        env:
+          MM_USERNAME: ${{ secrets.MM_USERNAME }}
+          MM_PASSWORD: ${{ secrets.MM_PASSWORD }}
+          MM_MAX_CHANNELS: ${{ secrets.MM_MAX_CHANNELS }}
       - name: Build
         run: pnpm run build
       - name: Deploy with Wrangler
