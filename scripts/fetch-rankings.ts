@@ -17,8 +17,16 @@ type Reaction = NonNullable<NonNullable<MMPost['metadata']>['reactions']>[number
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-const OUTPUT_PATH = path.resolve(__dirname, '../src/lib/data/reaction-counts.json');
-const WEEKLY_OUTPUT_PATH = path.resolve(__dirname, '../src/lib/data/weekly-reaction-counts.json');
+const REACTION_OUTPUT_PATH = path.resolve(__dirname, '../src/lib/data/reaction-counts.json');
+const WEEKLY_REACTION_OUTPUT_PATH = path.resolve(
+	__dirname,
+	'../src/lib/data/weekly-reaction-counts.json'
+);
+const POST_COUNTS_OUTPUT_PATH = path.resolve(__dirname, '../src/lib/data/post-counts.json');
+const WEEKLY_POST_COUNTS_OUTPUT_PATH = path.resolve(
+	__dirname,
+	'../src/lib/data/weekly-post-counts.json'
+);
 const BASE_URL = process.env.MM_BASE_URL ?? 'https://mm.digicre.net';
 const TEAM_NAME = process.env.MM_TEAM_NAME ?? 'digicre';
 const MAX_CHANNELS = Number(process.env.MM_MAX_CHANNELS ?? 500);
@@ -48,7 +56,7 @@ function getWeeklyWindowJST(): { start: number; end: number } {
 
 const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
-async function fetchReactionCounts() {
+async function fetchRankings() {
 	const client = new Client4();
 	client.setUrl(BASE_URL);
 	await client.login(process.env.MM_USERNAME!, process.env.MM_PASSWORD!);
@@ -103,9 +111,11 @@ async function fetchReactionCounts() {
 	const { start, end } = getWeeklyWindowJST();
 	const reactionCounts: Record<string, number> = {};
 	const weeklyReactionCounts: Record<string, number> = {};
+	const postCounts: Record<string, number> = {};
+	const weeklyPostCounts: Record<string, number> = {};
 	let processedChannels = 0;
 	for (const channel of channelList) {
-		const posts: { id: string; reactions: Reaction[] }[] = [];
+		const posts: { id: string; user_id: string; create_at: number; reactions: Reaction[] }[] = [];
 		let postsPage = 0;
 		while (true) {
 			const response = await client.getPosts(channel.id, postsPage, 200);
@@ -116,6 +126,8 @@ async function fetchReactionCounts() {
 			posts.push(
 				...newPosts.map((post) => ({
 					id: post.id,
+					user_id: post.user_id ?? '',
+					create_at: post.create_at ?? 0,
 					reactions: (post.metadata?.reactions ?? []) as Reaction[]
 				}))
 			);
@@ -136,6 +148,12 @@ async function fetchReactionCounts() {
 				const createdAt = reaction.create_at ?? 0;
 				if (createdAt >= start && createdAt <= end) {
 					weeklyReactionCounts[userId] = (weeklyReactionCounts[userId] ?? 0) + 1;
+				}
+			}
+			if (post.user_id) {
+				postCounts[post.user_id] = (postCounts[post.user_id] ?? 0) + 1;
+				if (post.create_at >= start && post.create_at <= end) {
+					weeklyPostCounts[post.user_id] = (weeklyPostCounts[post.user_id] ?? 0) + 1;
 				}
 			}
 		}
@@ -162,23 +180,69 @@ async function fetchReactionCounts() {
 		}))
 		.sort((a, b) => b.count - a.count);
 
-	return { reactionCountsList, weeklyReactionCountsList };
+	const postCountsList = Object.entries(postCounts)
+		.map(([userId, count]) => ({
+			userId,
+			nickname: profileMap.get(userId) ?? '',
+			count
+		}))
+		.sort((a, b) => b.count - a.count);
+
+	const weeklyPostCountsList = Object.entries(weeklyPostCounts)
+		.map(([userId, count]) => ({
+			userId,
+			nickname: profileMap.get(userId) ?? '',
+			count
+		}))
+		.sort((a, b) => b.count - a.count);
+
+	return {
+		reactionCountsList,
+		weeklyReactionCountsList,
+		postCountsList,
+		weeklyPostCountsList
+	};
 }
 
 async function main() {
 	try {
-		const { reactionCountsList, weeklyReactionCountsList } = await fetchReactionCounts();
-		await mkdir(path.dirname(OUTPUT_PATH), { recursive: true });
-		const totalData = { reactionCountsList };
-		const weeklyData = { reactionCountsList: weeklyReactionCountsList };
+		const {
+			reactionCountsList,
+			weeklyReactionCountsList,
+			postCountsList,
+			weeklyPostCountsList
+		} = await fetchRankings();
+		const dataDir = path.dirname(REACTION_OUTPUT_PATH);
+		await mkdir(dataDir, { recursive: true });
 
-		await writeFile(OUTPUT_PATH, JSON.stringify(totalData, null, 2), 'utf8');
-		await writeFile(WEEKLY_OUTPUT_PATH, JSON.stringify(weeklyData, null, 2), 'utf8');
+		const reactionTotalData = { reactionCountsList };
+		const reactionWeeklyData = { reactionCountsList: weeklyReactionCountsList };
+		const postTotalData = { postCountsList };
+		const postWeeklyData = { postCountsList: weeklyPostCountsList };
 
-		console.log(`Saved ${reactionCountsList.length} total entries to ${OUTPUT_PATH}`);
-		console.log(`Saved ${weeklyReactionCountsList.length} weekly entries to ${WEEKLY_OUTPUT_PATH}`);
+		await writeFile(REACTION_OUTPUT_PATH, JSON.stringify(reactionTotalData, null, 2), 'utf8');
+		await writeFile(
+			WEEKLY_REACTION_OUTPUT_PATH,
+			JSON.stringify(reactionWeeklyData, null, 2),
+			'utf8'
+		);
+		await writeFile(POST_COUNTS_OUTPUT_PATH, JSON.stringify(postTotalData, null, 2), 'utf8');
+		await writeFile(
+			WEEKLY_POST_COUNTS_OUTPUT_PATH,
+			JSON.stringify(postWeeklyData, null, 2),
+			'utf8'
+		);
+
+		console.log(`Saved ${reactionCountsList.length} total reaction entries to ${REACTION_OUTPUT_PATH}`);
+		console.log(
+			`Saved ${weeklyReactionCountsList.length} weekly reaction entries to ${WEEKLY_REACTION_OUTPUT_PATH}`
+		);
+		console.log(`Saved ${postCountsList.length} total post entries to ${POST_COUNTS_OUTPUT_PATH}`);
+		console.log(
+			`Saved ${weeklyPostCountsList.length} weekly post entries to ${WEEKLY_POST_COUNTS_OUTPUT_PATH}`
+		);
 	} catch (error) {
-		console.error('Failed to fetch reaction counts:', error);
+		console.error('Failed to fetch rankings:', error);
 		process.exit(1);
 	}
 }

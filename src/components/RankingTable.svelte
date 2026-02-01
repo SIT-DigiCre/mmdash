@@ -1,12 +1,13 @@
 <script lang="ts">
-  type ReactionTableProps = {
+  type RankingTableProps = {
     data: {
       nickname: string;
       count: number;
     }[];
+    countLabel?: string;
   }
 
-  let { data }: ReactionTableProps = $props();
+  let { data, countLabel = 'リアクション数' }: RankingTableProps = $props();
 </script>
 
 <div class="table-container">
@@ -15,7 +16,7 @@
       <tr>
         <th class="rank-header">順位</th>
         <th class="name-header">ユーザー名</th>
-        <th class="count-header">リアクション数</th>
+        <th class="count-header">{countLabel}</th>
       </tr>
     </thead>
     <tbody>
@@ -40,6 +41,7 @@
     border: 1px solid #000;
     border-radius: 0.5rem;
     background-color: #fff;
+    overflow-x: scroll;
   }
 
   .reaction-table {
@@ -56,7 +58,6 @@
 
   .reaction-table th {
     padding: 1rem 1.25rem;
-    text-align: left;
     font-weight: 600;
     font-size: 0.875rem;
     text-transform: uppercase;
@@ -73,17 +74,18 @@
   }
 
   .rank-header {
-    width: 80px;
-    text-align: center;
+    text-align: start;
+    white-space: nowrap;
   }
 
   .name-header {
     width: auto;
+    text-align: start;
   }
 
   .count-header {
-    width: 150px;
-    text-align: right;
+    text-align: end;
+    white-space: nowrap;
   }
 
   .reaction-table tbody tr {
@@ -135,17 +137,8 @@
       font-size: 0.875rem;
     }
 
-    .rank-header {
-      width: 60px;
-    }
-
-    .count-header {
-      width: 120px;
-    }
-
     .reaction-table .count-cell {
       font-size: 1rem;
     }
   }
 </style>
-

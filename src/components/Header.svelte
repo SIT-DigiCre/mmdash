@@ -17,6 +17,7 @@
 	</div>
 	<nav>
 		<a href="/" aria-current={page.url.pathname === '/' ? 'page' : undefined}>ホーム</a>
+		<a href="/posts" aria-current={page.url.pathname === '/posts' ? 'page' : undefined}>投稿数</a>
 		<a href="/reaction" aria-current={page.url.pathname === '/reaction' ? 'page' : undefined}>リアクション数</a>
 	</nav>
 </header>

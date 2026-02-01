@@ -1,6 +1,6 @@
 <script lang="ts">
 import type { PageProps } from '../reaction/$types';
-import ReactionTable from "../../components/ReactionTable.svelte";
+import RankingTable from "../../components/RankingTable.svelte";
 
 let { data }: PageProps = $props();
 </script>
@@ -15,11 +15,11 @@ let { data }: PageProps = $props();
 <div class="reaction-table-container">
   <div class="reaction-table-container-item">
     <h3>累計</h3>
-    <ReactionTable data={data.reactionCountsData.reactionCountsList} />
+    <RankingTable data={data.reactionCountsData.reactionCountsList} countLabel="リアクション数" />
   </div>
   <div class="reaction-table-container-item">
     <h3>先週</h3>
-    <ReactionTable data={data.weeklyReactionCountsData.reactionCountsList} />
+    <RankingTable data={data.weeklyReactionCountsData.reactionCountsList} countLabel="リアクション数" />
   </div>
 </div>
 
