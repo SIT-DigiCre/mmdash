@@ -12,9 +12,9 @@
 		"check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
 		"format": "prettier --write .",
 		"lint": "prettier --check . && eslint .",
-		"fetch:reactions": "tsx scripts/fetch-reaction-counts.ts",
+		"fetch:ranking": "tsx scripts/fetch-rankings.ts",
 		"fetch:analytics": "tsx scripts/fetch-analytics.ts",
-		"fetch:all": "pnpm run fetch:reactions && pnpm run fetch:analytics"
+		"fetch:all": "pnpm run fetch:ranking && pnpm run fetch:analytics"
 	},
 	"devDependencies": {
 		"@eslint/compat": "2.0.2",
