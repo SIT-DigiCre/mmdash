@@ -136,7 +136,7 @@ async function fetchRankings() {
 				break;
 			}
 			postsPage++;
-			await sleep(200);
+			await sleep(150);
 		}
 		console.log(`Channel '${channel.name.slice(0, 8)}...' total posts ${posts.length}`);
 
