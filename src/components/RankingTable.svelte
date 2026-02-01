@@ -75,6 +75,7 @@
 
   .rank-header {
     text-align: start;
+    white-space: nowrap;
   }
 
   .name-header {
@@ -84,6 +85,7 @@
 
   .count-header {
     text-align: end;
+    white-space: nowrap;
   }
 
   .reaction-table tbody tr {
