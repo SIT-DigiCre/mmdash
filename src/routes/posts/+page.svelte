@@ -48,11 +48,12 @@ let { data }: PageProps = $props();
   }
 
   .reaction-table-container-item-header a {
+    display: none;
     font-size: 0.75rem;
-      color: #000;
-      text-decoration: underline;
-      text-decoration-color: color-mix(in srgb, currentcolor, transparent 40%);
-      text-underline-offset: 0.25em;
+    color: #000;
+    text-decoration: underline;
+    text-decoration-color: color-mix(in srgb, currentcolor, transparent 40%);
+    text-underline-offset: 0.25em;
   }
 
   .reaction-table-container-item-header a:hover {
