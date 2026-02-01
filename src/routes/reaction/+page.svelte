@@ -14,11 +14,17 @@ let { data }: PageProps = $props();
 <p>公開チャンネルにおける投稿のみを対象としています。</p>
 <div class="reaction-table-container">
   <div class="reaction-table-container-item">
-    <h3>累計</h3>
+    <div class="reaction-table-container-item-header">
+      <h3 id="total">累計</h3>
+      <a href="#weekly">先週を見る</a>
+    </div>
     <RankingTable data={data.reactionCountsData.reactionCountsList} countLabel="リアクション数" />
   </div>
   <div class="reaction-table-container-item">
-    <h3>先週</h3>
+    <div class="reaction-table-container-item-header">
+      <h3 id="weekly">先週</h3>
+      <a href="#total">累計を見る</a>
+    </div>
     <RankingTable data={data.weeklyReactionCountsData.reactionCountsList} countLabel="リアクション数" />
   </div>
 </div>
@@ -34,10 +40,34 @@ let { data }: PageProps = $props();
     flex: 1;
   }
 
+  .reaction-table-container-item-header {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .reaction-table-container-item-header a {
+    display: none;
+    font-size: 0.75rem;
+    color: #000;
+    text-decoration: underline;
+    text-decoration-color: color-mix(in srgb, currentcolor, transparent 40%);
+    text-underline-offset: 0.25em;
+  }
+
+  .reaction-table-container-item-header a:hover {
+    color: #666;
+  }
+
+  .reaction-table-container-item-header a:hover {
+    text-decoration: underline;
+  }
+
   h3 {
     background-color: #fff;
     z-index: 90;
-    margin: 0 auto;
+    margin: 0;
     padding: 1rem 0;
     line-height: 1rem;
     text-align: center;
@@ -46,6 +76,15 @@ let { data }: PageProps = $props();
   @media (max-width: 640px) {
     .reaction-table-container {
       flex-direction: column;
+    }
+
+    .reaction-table-container-item-header {
+      justify-content: space-between;
+      margin: 0 1rem;
+    }
+
+    .reaction-table-container-item-header a {
+      display: block;
     }
   }
 </style>
