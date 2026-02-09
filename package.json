@@ -41,5 +41,5 @@
 		"svelte": "5.49.1",
 		"vite": "7.3.1"
 	},
-	"packageManager": "pnpm@10.28.0"
+	"packageManager": "pnpm@10.29.2"
 }
