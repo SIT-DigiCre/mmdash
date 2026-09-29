@@ -38,7 +38,6 @@ const EMOJI_IMAGE_DIR = path.resolve(__dirname, '../static/emoji');
 const BASE_URL = process.env.MM_BASE_URL ?? 'https://mm.digicre.net';
 const TEAM_NAME = process.env.MM_TEAM_NAME ?? 'digicre';
 const MAX_CHANNELS = Number(process.env.MM_MAX_CHANNELS ?? 500);
-const EMOJI_RANKING_LIMIT = 50;
 const SYSTEM_EMOJI_FILENAMES = emojiFilenames as Record<string, string>;
 
 /**
@@ -233,8 +232,7 @@ async function fetchRankings() {
 function topEmojiCounts(counts: Record<string, number>): EmojiCount[] {
 	return Object.entries(counts)
 		.map(([name, count]) => ({ name, count, image: null }))
-		.sort((a, b) => b.count - a.count || a.name.localeCompare(b.name))
-		.slice(0, EMOJI_RANKING_LIMIT);
+		.sort((a, b) => b.count - a.count || a.name.localeCompare(b.name));
 }
 
 /**
@@ -288,7 +286,7 @@ async function attachEmojiImages(
 
 		const url = systemFilename
 			? `${BASE_URL}/static/emoji/${systemFilename}.png`
-			: `${BASE_URL}${client.getCustomEmojiImageUrl(customId!)}`;
+			: client.getCustomEmojiImageUrl(customId!);
 		const filePath = path.join(EMOJI_IMAGE_DIR, imagePath.slice('/emoji/'.length));
 		try {
 			const response = await fetch(url, {

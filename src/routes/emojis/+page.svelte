@@ -26,7 +26,7 @@
 </svelte:head>
 
 <h2>絵文字ランキング</h2>
-<p>公開チャンネルにおける投稿のみを対象としています。累計・先週それぞれ上位50件です。</p>
+<p>公開チャンネルにおける投稿のみを対象としています。</p>
 <div class="reaction-table-container">
 	<div class="reaction-table-container-item">
 		<div class="reaction-table-container-item-header">
