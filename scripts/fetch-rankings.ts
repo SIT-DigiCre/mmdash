@@ -6,6 +6,7 @@ import { mkdir, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import dotenv from 'dotenv';
+import emojiFilenames from './emoji-filenames.json' with { type: 'json' };
 
 dotenv.config();
 
@@ -14,6 +15,7 @@ const { Client4 } = pkg;
 type Channel = Pick<MMChannel, 'id' | 'name' | 'type'>;
 type Profile = Pick<UserProfile, 'id' | 'nickname'>;
 type Reaction = NonNullable<NonNullable<MMPost['metadata']>['reactions']>[number];
+type EmojiCount = { name: string; count: number; image: string | null };
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -27,9 +29,17 @@ const WEEKLY_POST_COUNTS_OUTPUT_PATH = path.resolve(
 	__dirname,
 	'../src/lib/data/weekly-post-counts.json'
 );
+const EMOJI_OUTPUT_PATH = path.resolve(__dirname, '../src/lib/data/emoji-counts.json');
+const WEEKLY_EMOJI_OUTPUT_PATH = path.resolve(
+	__dirname,
+	'../src/lib/data/weekly-emoji-counts.json'
+);
+const EMOJI_IMAGE_DIR = path.resolve(__dirname, '../static/emoji');
 const BASE_URL = process.env.MM_BASE_URL ?? 'https://mm.digicre.net';
 const TEAM_NAME = process.env.MM_TEAM_NAME ?? 'digicre';
 const MAX_CHANNELS = Number(process.env.MM_MAX_CHANNELS ?? 500);
+const EMOJI_RANKING_LIMIT = 50;
+const SYSTEM_EMOJI_FILENAMES = emojiFilenames as Record<string, string>;
 
 /**
  * 前週の月曜0時から日曜24時までの期間を日本時間で取得
@@ -111,6 +121,8 @@ async function fetchRankings() {
 	const { start, end } = getWeeklyWindowJST();
 	const reactionCounts: Record<string, number> = {};
 	const weeklyReactionCounts: Record<string, number> = {};
+	const emojiCounts: Record<string, number> = {};
+	const weeklyEmojiCounts: Record<string, number> = {};
 	const postCounts: Record<string, number> = {};
 	const weeklyPostCounts: Record<string, number> = {};
 	let processedChannels = 0;
@@ -145,9 +157,17 @@ async function fetchRankings() {
 				const userId = reaction.user_id;
 				reactionCounts[userId] = (reactionCounts[userId] ?? 0) + 1;
 
+				const emojiName = reaction.emoji_name;
+				if (emojiName) {
+					emojiCounts[emojiName] = (emojiCounts[emojiName] ?? 0) + 1;
+				}
+
 				const createdAt = reaction.create_at ?? 0;
 				if (createdAt >= start && createdAt <= end) {
 					weeklyReactionCounts[userId] = (weeklyReactionCounts[userId] ?? 0) + 1;
+					if (emojiName) {
+						weeklyEmojiCounts[emojiName] = (weeklyEmojiCounts[emojiName] ?? 0) + 1;
+					}
 				}
 			}
 			if (post.user_id) {
@@ -196,12 +216,95 @@ async function fetchRankings() {
 		}))
 		.sort((a, b) => b.count - a.count);
 
+	const emojiCountsList = topEmojiCounts(emojiCounts);
+	const weeklyEmojiCountsList = topEmojiCounts(weeklyEmojiCounts);
+	await attachEmojiImages(client, emojiCountsList, weeklyEmojiCountsList);
+
 	return {
 		reactionCountsList,
 		weeklyReactionCountsList,
 		postCountsList,
-		weeklyPostCountsList
+		weeklyPostCountsList,
+		emojiCountsList,
+		weeklyEmojiCountsList
 	};
+}
+
+function topEmojiCounts(counts: Record<string, number>): EmojiCount[] {
+	return Object.entries(counts)
+		.map(([name, count]) => ({ name, count, image: null }))
+		.sort((a, b) => b.count - a.count || a.name.localeCompare(b.name))
+		.slice(0, EMOJI_RANKING_LIMIT);
+}
+
+/**
+ * 上位絵文字の画像を Mattermost から取得し、static/emoji に保存する。
+ * システム絵文字は認証不要。カスタム絵文字の画像 API は認証が必要なので、ここで同梱する。
+ */
+async function attachEmojiImages(
+	client: InstanceType<typeof Client4>,
+	...lists: EmojiCount[][]
+): Promise<void> {
+	const entries = new Map<string, EmojiCount[]>();
+	for (const list of lists) {
+		for (const entry of list) {
+			const group = entries.get(entry.name) ?? [];
+			group.push(entry);
+			entries.set(entry.name, group);
+		}
+	}
+
+	const customNames = [...entries.keys()].filter((name) => !SYSTEM_EMOJI_FILENAMES[name]);
+	const customIds = new Map<string, string>();
+	if (customNames.length > 0) {
+		try {
+			const customEmojis = await client.getCustomEmojisByNames(customNames);
+			for (const emoji of customEmojis) {
+				customIds.set(emoji.name, emoji.id);
+			}
+		} catch (error) {
+			console.error('Failed to resolve custom emoji ids:', error);
+		}
+	}
+
+	await mkdir(EMOJI_IMAGE_DIR, { recursive: true });
+	await mkdir(path.join(EMOJI_IMAGE_DIR, 'custom'), { recursive: true });
+
+	for (const [name, group] of entries) {
+		const systemFilename = SYSTEM_EMOJI_FILENAMES[name];
+		const customId = customIds.get(name);
+		const imagePath = systemFilename
+			? `/emoji/${systemFilename}.png`
+			: customId
+				? `/emoji/custom/${customId}.png`
+				: null;
+		for (const entry of group) {
+			entry.image = imagePath;
+		}
+		if (!imagePath) {
+			console.warn(`No image for emoji '${name}'`);
+			continue;
+		}
+
+		const url = systemFilename
+			? `${BASE_URL}/static/emoji/${systemFilename}.png`
+			: `${BASE_URL}${client.getCustomEmojiImageUrl(customId!)}`;
+		const filePath = path.join(EMOJI_IMAGE_DIR, imagePath.slice('/emoji/'.length));
+		try {
+			const response = await fetch(url, {
+				headers: customId ? { Authorization: `Bearer ${client.getToken()}` } : {}
+			});
+			if (!response.ok) {
+				throw new Error(`HTTP ${response.status}`);
+			}
+			await writeFile(filePath, Buffer.from(await response.arrayBuffer()));
+		} catch (error) {
+			console.error(`Failed to download emoji '${name}' from ${url}:`, error);
+			for (const entry of group) {
+				entry.image = null;
+			}
+		}
+	}
 }
 
 async function main() {
@@ -210,7 +313,9 @@ async function main() {
 			reactionCountsList,
 			weeklyReactionCountsList,
 			postCountsList,
-			weeklyPostCountsList
+			weeklyPostCountsList,
+			emojiCountsList,
+			weeklyEmojiCountsList
 		} = await fetchRankings();
 		const dataDir = path.dirname(REACTION_OUTPUT_PATH);
 		await mkdir(dataDir, { recursive: true });
@@ -219,6 +324,8 @@ async function main() {
 		const reactionWeeklyData = { reactionCountsList: weeklyReactionCountsList };
 		const postTotalData = { postCountsList };
 		const postWeeklyData = { postCountsList: weeklyPostCountsList };
+		const emojiTotalData = { emojiCountsList };
+		const emojiWeeklyData = { emojiCountsList: weeklyEmojiCountsList };
 
 		await writeFile(REACTION_OUTPUT_PATH, JSON.stringify(reactionTotalData, null, 2), 'utf8');
 		await writeFile(
@@ -232,14 +339,22 @@ async function main() {
 			JSON.stringify(postWeeklyData, null, 2),
 			'utf8'
 		);
+		await writeFile(EMOJI_OUTPUT_PATH, JSON.stringify(emojiTotalData, null, 2), 'utf8');
+		await writeFile(WEEKLY_EMOJI_OUTPUT_PATH, JSON.stringify(emojiWeeklyData, null, 2), 'utf8');
 
-		console.log(`Saved ${reactionCountsList.length} total reaction entries to ${REACTION_OUTPUT_PATH}`);
+		console.log(
+			`Saved ${reactionCountsList.length} total reaction entries to ${REACTION_OUTPUT_PATH}`
+		);
 		console.log(
 			`Saved ${weeklyReactionCountsList.length} weekly reaction entries to ${WEEKLY_REACTION_OUTPUT_PATH}`
 		);
 		console.log(`Saved ${postCountsList.length} total post entries to ${POST_COUNTS_OUTPUT_PATH}`);
 		console.log(
 			`Saved ${weeklyPostCountsList.length} weekly post entries to ${WEEKLY_POST_COUNTS_OUTPUT_PATH}`
+		);
+		console.log(`Saved ${emojiCountsList.length} total emoji entries to ${EMOJI_OUTPUT_PATH}`);
+		console.log(
+			`Saved ${weeklyEmojiCountsList.length} weekly emoji entries to ${WEEKLY_EMOJI_OUTPUT_PATH}`
 		);
 	} catch (error) {
 		console.error('Failed to fetch rankings:', error);
