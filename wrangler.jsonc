@@ -2,8 +2,9 @@
 	"name": "mmdash",
 	"compatibility_date": "2025-11-25",
 	"compatibility_flags": ["nodejs_compat"],
-	"main": "./.cloudflare/worker.js",
-	"site": {
-		"bucket": "./.cloudflare/public"
+	"main": ".svelte-kit/cloudflare/_worker.js",
+	"assets": {
+		"binding": "ASSETS",
+		"directory": ".svelte-kit/cloudflare"
 	}
 }
