@@ -2,10 +2,10 @@ import pkg from '@mattermost/client';
 import type { Channel as MMChannel } from '@mattermost/types/channels';
 import type { Post as MMPost } from '@mattermost/types/posts';
 import type { UserProfile } from '@mattermost/types/users';
+import dotenv from 'dotenv';
 import { mkdir, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import dotenv from 'dotenv';
 import emojiFilenames from './emoji-filenames.json' with { type: 'json' };
 
 dotenv.config();
@@ -254,14 +254,20 @@ async function attachEmojiImages(
 
 	const customNames = [...entries.keys()].filter((name) => !SYSTEM_EMOJI_FILENAMES[name]);
 	const customIds = new Map<string, string>();
-	if (customNames.length > 0) {
+	// /api/v4/emoji/names は一度に 200 件まで
+	const EMOJI_NAMES_BATCH_SIZE = 200;
+	for (let i = 0; i < customNames.length; i += EMOJI_NAMES_BATCH_SIZE) {
+		const batch = customNames.slice(i, i + EMOJI_NAMES_BATCH_SIZE);
 		try {
-			const customEmojis = await client.getCustomEmojisByNames(customNames);
+			const customEmojis = await client.getCustomEmojisByNames(batch);
 			for (const emoji of customEmojis) {
 				customIds.set(emoji.name, emoji.id);
 			}
 		} catch (error) {
-			console.error('Failed to resolve custom emoji ids:', error);
+			console.error(
+				`Failed to resolve custom emoji ids (${i + 1}-${i + batch.length}/${customNames.length}):`,
+				error
+			);
 		}
 	}
 

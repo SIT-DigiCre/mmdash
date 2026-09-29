@@ -33,7 +33,7 @@
 						{#if item.image}
 							<img class="name-image" src={item.image} alt="" width="24" height="24" />
 						{/if}
-						{item.nickname}
+						<span class="name-text">{item.nickname}</span>
 					</td>
 					<td class="count-cell google-sans-flex">{item.count.toLocaleString()}</td>
 				</tr>
@@ -59,6 +59,7 @@
 
 	.reaction-table {
 		width: 100%;
+		table-layout: fixed;
 		border-collapse: collapse;
 		font-size: 1rem;
 		font-feature-settings: initial;
@@ -87,6 +88,7 @@
 	}
 
 	.rank-header {
+		width: 5rem;
 		text-align: start;
 		white-space: nowrap;
 	}
@@ -97,6 +99,7 @@
 	}
 
 	.count-header {
+		width: 9rem;
 		text-align: end;
 		white-space: nowrap;
 	}
@@ -136,9 +139,31 @@
 
 	.name-cell {
 		font-weight: 500;
+		overflow: hidden;
+		white-space: nowrap;
 	}
 
-	.name-image {
+	.name-text {
+		display: inline-block;
+		max-width: 100%;
+		overflow: hidden;
+		text-overflow: ellipsis;
+		vertical-align: bottom;
+	}
+
+	.name-cell:has(.name-image) .name-text {
+		max-width: calc(100% - 1.5rem - 0.5rem);
+	}
+
+	.naank-header {
+		width: 3.5rem;
+	}
+
+	.count-header {
+		width: 6.5rem;
+	}
+
+	.rme-image {
 		width: 1.5rem;
 		height: 1.5rem;
 		margin-right: 0.5rem;
