@@ -10,7 +10,12 @@
 		{#if BUILD_TIME}
 			<p class="update-date">
 				<time datetime={BUILD_TIME}>
-					{new Date(BUILD_TIME).toLocaleDateString('ja-JP', { timeZone: 'Asia/Tokyo', year: 'numeric', month: 'long', day: "numeric" })}
+					{new Date(BUILD_TIME).toLocaleDateString('ja-JP', {
+						timeZone: 'Asia/Tokyo',
+						year: 'numeric',
+						month: 'long',
+						day: 'numeric'
+					})}
 				</time> 更新
 			</p>
 		{/if}
@@ -18,7 +23,10 @@
 	<nav>
 		<a href="/" aria-current={page.url.pathname === '/' ? 'page' : undefined}>ホーム</a>
 		<a href="/posts" aria-current={page.url.pathname === '/posts' ? 'page' : undefined}>投稿数</a>
-		<a href="/reaction" aria-current={page.url.pathname === '/reaction' ? 'page' : undefined}>リアクション数</a>
+		<a href="/reaction" aria-current={page.url.pathname === '/reaction' ? 'page' : undefined}
+			>リアクション数</a
+		>
+		<a href="/emojis" aria-current={page.url.pathname === '/emojis' ? 'page' : undefined}>絵文字</a>
 	</nav>
 </header>
 
@@ -67,7 +75,9 @@
 		color: #000;
 		text-decoration: none;
 		font-size: 0.75rem;
-		transition: background-color 0.2s, color 0.2s;
+		transition:
+			background-color 0.2s,
+			color 0.2s;
 	}
 
 	nav a:hover {
@@ -75,9 +85,8 @@
 		color: #fff;
 	}
 
-	nav a[aria-current="page"] {
+	nav a[aria-current='page'] {
 		background-color: #000;
 		color: #fff;
 	}
 </style>
-
